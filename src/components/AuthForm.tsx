@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Youtube, Mail, Lock } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AuthFormProps {
   onAuthSuccess: () => void;
@@ -21,12 +22,19 @@ const AuthForm = ({ onAuthSuccess }: AuthFormProps) => {
     setIsLoading(true);
     
     try {
-      // Mock authentication - replace with actual Supabase auth
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { error } = await supabase.auth.signInWithPassword({
+        email: loginData.email,
+        password: loginData.password,
+      });
+
+      if (error) {
+        throw error;
+      }
+
       toast.success("Successfully signed in!");
       onAuthSuccess();
-    } catch (error) {
-      toast.error("Failed to sign in. Please try again.");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to sign in. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -43,12 +51,24 @@ const AuthForm = ({ onAuthSuccess }: AuthFormProps) => {
     setIsLoading(true);
     
     try {
-      // Mock authentication - replace with actual Supabase auth
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      toast.success("Account created successfully!");
+      const redirectUrl = `${window.location.origin}/`;
+      
+      const { error } = await supabase.auth.signUp({
+        email: signupData.email,
+        password: signupData.password,
+        options: {
+          emailRedirectTo: redirectUrl
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      toast.success("Account created successfully! Please check your email to confirm your account.");
       onAuthSuccess();
-    } catch (error) {
-      toast.error("Failed to create account. Please try again.");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to create account. Please try again.");
     } finally {
       setIsLoading(false);
     }

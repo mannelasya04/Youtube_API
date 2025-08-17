@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface EventData {
   event_type: string;
@@ -10,23 +11,29 @@ export interface EventData {
 export const useEventLogger = () => {
   const logEvent = useCallback(async (eventData: EventData) => {
     try {
-      // In a real implementation, this would send to Supabase
+      const { data: { user } } = await supabase.auth.getUser();
+      
       const enrichedEvent = {
-        ...eventData,
+        user_id: user?.id || null,
+        event_type: eventData.event_type,
+        event_data: eventData.event_data || {},
         user_agent: navigator.userAgent,
-        timestamp: new Date().toISOString(),
       };
       
-      // For now, just log to console
       console.log('Event logged:', enrichedEvent);
       
-      // Store in localStorage as a temporary solution
-      const existingEvents = JSON.parse(localStorage.getItem('event_logs') || '[]');
-      existingEvents.push(enrichedEvent);
-      localStorage.setItem('event_logs', JSON.stringify(existingEvents));
+      // Insert into Supabase
+      const { error } = await supabase
+        .from('event_logs')
+        .insert(enrichedEvent);
       
-      // In production, this would be:
-      // await supabase.from('event_logs').insert(enrichedEvent);
+      if (error) {
+        console.error('Failed to insert event to database:', error);
+        // Fallback to localStorage
+        const existingEvents = JSON.parse(localStorage.getItem('event_logs') || '[]');
+        existingEvents.push(enrichedEvent);
+        localStorage.setItem('event_logs', JSON.stringify(existingEvents));
+      }
       
     } catch (error) {
       console.error('Failed to log event:', error);
