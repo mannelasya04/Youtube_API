@@ -14,7 +14,122 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      event_logs: {
+        Row: {
+          created_at: string
+          event_data: Json | null
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      notes: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+          user_id: string
+          video_id: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          user_id: string
+          video_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          video_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notes_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      videos: {
+        Row: {
+          comment_count: number | null
+          created_at: string
+          description: string | null
+          id: string
+          like_count: number | null
+          published_at: string | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          user_id: string
+          view_count: number | null
+          youtube_video_id: string
+        }
+        Insert: {
+          comment_count?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          like_count?: number | null
+          published_at?: string | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+          view_count?: number | null
+          youtube_video_id: string
+        }
+        Update: {
+          comment_count?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          like_count?: number | null
+          published_at?: string | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          view_count?: number | null
+          youtube_video_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
